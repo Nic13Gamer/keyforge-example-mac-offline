@@ -8,30 +8,20 @@
 
 import Foundation
 import CryptoKit
+import Security
 
 // MARK: - Configuration
 
 enum KeyforgeConfig {
     // TODO: Replace with your Keyforge product ID (found in your dashboard).
-    static let productId = "p_wh014v84u8xvejz5bcp3esgw"
+    static let productId = "YOUR_PRODUCT_ID"
 
     // TODO: Replace with the ES256 public key from your Keyforge dashboard.
     static let publicKeyPEM = """
     -----BEGIN PUBLIC KEY-----
-    MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAELHprQskwqLK+KzKMHJ0m9BCUAU/W
-    t6APEEoglKFI7nIJWP8vZ/KtVu0ipkpRM2CHB0DH+OJeJMErqyJOq+oVag==
+    YOUR_PUBLIC_KEY_HERE
     -----END PUBLIC KEY-----
     """
-    
-//    // TODO: Replace with your Keyforge product ID (found in your dashboard).
-//    static let productId = "YOUR_PRODUCT_ID"
-//
-//    // TODO: Replace with the ES256 public key from your Keyforge dashboard.
-//    static let publicKeyPEM = """
-//    -----BEGIN PUBLIC KEY-----
-//    YOUR_PUBLIC_KEY_HERE
-//    -----END PUBLIC KEY-----
-//    """
 
     static let activateURL = URL(string: "https://keyforge.dev/api/v1/public/licenses/activate")!
     static let refreshTokenURL = URL(string: "https://keyforge.dev/api/v1/public/licenses/token")!
@@ -55,27 +45,67 @@ final class LicenseManager {
 
     // MARK: Private
 
-    private let defaults = UserDefaults.standard
+    private static let keychainService = "dev.keyforge.offline-example"
 
     private var storedLicenseKey: String? {
-        get { defaults.string(forKey: "keyforge_license_key") }
-        set { defaults.set(newValue, forKey: "keyforge_license_key") }
+        get { Self.keychainRead(account: "license_key") }
+        set { Self.keychainWrite(account: "license_key", value: newValue) }
     }
 
     private var storedToken: String? {
-        get { defaults.string(forKey: "keyforge_license_token") }
-        set { defaults.set(newValue, forKey: "keyforge_license_token") }
+        get { Self.keychainRead(account: "license_token") }
+        set { Self.keychainWrite(account: "license_token", value: newValue) }
     }
 
     private var storedDeviceId: String? {
-        get { defaults.string(forKey: "keyforge_device_id") }
-        set { defaults.set(newValue, forKey: "keyforge_device_id") }
+        get { Self.keychainRead(account: "device_id") }
+        set { Self.keychainWrite(account: "device_id", value: newValue) }
+    }
+
+    // MARK: - Keychain Helpers
+
+    private static func keychainRead(account: String) -> String? {
+        let query: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrService as String: keychainService,
+            kSecAttrAccount as String: account,
+            kSecReturnData as String: true,
+            kSecMatchLimit as String: kSecMatchLimitOne
+        ]
+
+        var result: AnyObject?
+        let status = SecItemCopyMatching(query as CFDictionary, &result)
+
+        guard status == errSecSuccess, let data = result as? Data else { return nil }
+        return String(data: data, encoding: .utf8)
+    }
+
+    private static func keychainWrite(account: String, value: String?) {
+        // Always delete the existing item first.
+        let deleteQuery: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrService as String: keychainService,
+            kSecAttrAccount as String: account
+        ]
+        SecItemDelete(deleteQuery as CFDictionary)
+
+        // If value is nil, we just wanted to delete.
+        guard let value, let data = value.data(using: .utf8) else { return }
+
+        let addQuery: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrService as String: keychainService,
+            kSecAttrAccount as String: account,
+            kSecValueData as String: data,
+            kSecAttrAccessible as String: kSecAttrAccessibleWhenUnlocked
+        ]
+        SecItemAdd(addQuery as CFDictionary, nil)
     }
 
     // MARK: - Device Identifier
 
     /// Returns a stable device identifier using IOPlatformUUID, or falls back
-    /// to a generated UUID stored in UserDefaults.
+    /// to a generated UUID stored in the Keychain.
     private var deviceIdentifier: String {
         if let existing = storedDeviceId {
             return existing
