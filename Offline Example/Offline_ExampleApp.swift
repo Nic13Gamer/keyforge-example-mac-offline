@@ -1,6 +1,6 @@
 //
-//  Offline_Example_AppApp.swift
-//  Offline Example App
+//  Offline_ExampleApp.swift
+//  Offline Example
 //
 //  Created by Nicholas Affonso on 21/03/26.
 //
@@ -8,10 +8,11 @@
 import SwiftUI
 
 @main
-struct Offline_Example_AppApp: App {
+struct Offline_ExampleApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
         }
+        .windowResizability(.contentSize)
     }
 }
