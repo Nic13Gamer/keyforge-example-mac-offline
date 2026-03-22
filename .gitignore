@@ -1,0 +1,25 @@
+# Xcode
+build/
+DerivedData/
+*.moved-aside
+*.xcuserstate
+*.xccheckout
+*.xcscmblueprint
+
+# User-specific files (Crucial to ignore to avoid merge conflicts)
+xcuserdata/
+
+# Swift Package Manager
+.build/
+
+# Only ignore Packages.resolved if you want to always pull the latest versions
+# Packages.resolved
+.swiftpm/xcode/package.xcworkspace/contents.xcworkspacedata
+.swiftpm/xcode/xcuserdata/
+
+# macOS / OS X
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon?
+._*

@@ -8,11 +8,13 @@
 
 /* Begin PBXBuildFile section */
 		E1C357422F6F347A00AF8ABE /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = E1C357412F6F347A00AF8ABE /* README.md */; };
+		E1C357692F6F91E600AF8ABE /* .gitignore in Resources */ = {isa = PBXBuildFile; fileRef = E1C357682F6F91E600AF8ABE /* .gitignore */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		E1C357412F6F347A00AF8ABE /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		E1C357432F6F359000AF8ABE /* Offline Example.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Offline Example.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		E1C357682F6F91E600AF8ABE /* .gitignore */ = {isa = PBXFileReference; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -39,6 +41,7 @@
 			children = (
 				E1B8912B2F6F0CE3000F6558 /* Offline Example */,
 				E1C357412F6F347A00AF8ABE /* README.md */,
+				E1C357682F6F91E600AF8ABE /* .gitignore */,
 				E1C357432F6F359000AF8ABE /* Offline Example.app */,
 			);
 			sourceTree = "<group>";
@@ -108,6 +111,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				E1C357422F6F347A00AF8ABE /* README.md in Resources */,
+				E1C357692F6F91E600AF8ABE /* .gitignore in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
