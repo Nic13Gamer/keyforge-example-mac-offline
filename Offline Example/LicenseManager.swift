@@ -27,6 +27,7 @@ enum KeyforgeConfig {
 
     static let activateURL = URL(string: "https://keyforge.dev/api/v1/public/licenses/activate")!
     static let refreshTokenURL = URL(string: "https://keyforge.dev/api/v1/public/licenses/token")!
+    static let removeDeviceURL = URL(string: "https://keyforge.dev/api/v1/public/licenses/device")!
 }
 
 // MARK: - License Manager
@@ -260,7 +261,19 @@ final class LicenseManager {
 
     // MARK: - Deactivate / Log Out
 
-    func deactivate() {
+    /// Removes this device from the license on Keyforge, then clears local
+    /// credentials. If the network call fails, local data is still cleared.
+    func deactivate() async {
+        if let key = storedLicenseKey {
+            let body: [String: Any] = [
+                "licenseKey": key,
+                "deviceIdentifier": deviceIdentifier,
+                "productId": KeyforgeConfig.productId
+            ]
+
+            _ = try? await deleteJSON(url: KeyforgeConfig.removeDeviceURL, body: body)
+        }
+
         storedLicenseKey = nil
         storedToken = nil
         // Note: deviceIdentifier is intentionally kept — it should remain
@@ -391,6 +404,14 @@ final class LicenseManager {
     private func postJSON(url: URL, body: [String: Any]) async throws -> (Data, URLResponse) {
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.httpBody = try JSONSerialization.data(withJSONObject: body)
+        return try await URLSession.shared.data(for: request)
+    }
+
+    private func deleteJSON(url: URL, body: [String: Any]) async throws -> (Data, URLResponse) {
+        var request = URLRequest(url: url)
+        request.httpMethod = "DELETE"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.httpBody = try JSONSerialization.data(withJSONObject: body)
         return try await URLSession.shared.data(for: request)

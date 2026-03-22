@@ -62,7 +62,9 @@ struct SuccessView: View {
                 }
 
                 Button("Deactivate") {
-                    licenseManager.deactivate()
+                    Task {
+                        await licenseManager.deactivate()
+                    }
                 }
                 .foregroundStyle(.red)
             }
