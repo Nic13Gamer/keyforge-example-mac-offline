@@ -23,6 +23,8 @@ enum KeyforgeConfig {
     -----END PUBLIC KEY-----
     """
 
+    static let keychainService = Bundle.main.bundleIdentifier ?? "dev.keyforge.offline-example"
+
     static let activateURL = URL(string: "https://keyforge.dev/api/v1/public/licenses/activate")!
     static let refreshTokenURL = URL(string: "https://keyforge.dev/api/v1/public/licenses/token")!
 }
@@ -45,8 +47,6 @@ final class LicenseManager {
 
     // MARK: Private
 
-    private static let keychainService = "dev.keyforge.offline-example"
-
     private var storedLicenseKey: String? {
         get { Self.keychainRead(account: "license_key") }
         set { Self.keychainWrite(account: "license_key", value: newValue) }
@@ -67,7 +67,7 @@ final class LicenseManager {
     private static func keychainRead(account: String) -> String? {
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
-            kSecAttrService as String: keychainService,
+            kSecAttrService as String: KeyforgeConfig.keychainService,
             kSecAttrAccount as String: account,
             kSecReturnData as String: true,
             kSecMatchLimit as String: kSecMatchLimitOne
@@ -84,7 +84,7 @@ final class LicenseManager {
         // Always delete the existing item first.
         let deleteQuery: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
-            kSecAttrService as String: keychainService,
+            kSecAttrService as String: KeyforgeConfig.keychainService,
             kSecAttrAccount as String: account
         ]
         SecItemDelete(deleteQuery as CFDictionary)
@@ -94,7 +94,7 @@ final class LicenseManager {
 
         let addQuery: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
-            kSecAttrService as String: keychainService,
+            kSecAttrService as String: KeyforgeConfig.keychainService,
             kSecAttrAccount as String: account,
             kSecValueData as String: data,
             kSecAttrAccessible as String: kSecAttrAccessibleWhenUnlocked
